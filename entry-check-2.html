@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entry Check: don't get turned away at the gate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --board: #0B0D0A;
+    --panel: #14140F;
+    --panel-2: #191910;
+    --line: #2A2A20;
+    --amber: #F4A623;
+    --amber-light: #FFC65C;
+    --green: #6FCF97;
+    --red: #EB5757;
+    --ivory: #E8E6DE;
+    --muted: #8B8672;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--board);
+    color: var(--ivory);
+    font-family: 'IBM Plex Sans', sans-serif;
+    line-height: 1.5;
+  }
+
+  h1, h2, h3 { font-weight: 600; letter-spacing: -0.01em; }
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+  a { color: var(--amber-light); }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    background: var(--board);
+    background-image:
+      linear-gradient(rgba(244,166,35,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(244,166,35,0.05) 1px, transparent 1px);
+    background-size: 28px 28px;
+    padding: 3rem 1.5rem 2.8rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .hero-inner { max-width: 720px; margin: 0 auto; }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--amber);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.65rem;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    margin-bottom: 1.3rem;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 6px; height: 6px;
+    background: var(--amber);
+    display: inline-block;
+    border-radius: 50%;
+    box-shadow: 0 0 6px 1px rgba(244,166,35,0.7);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @media (prefers-reduced-motion: reduce) { .eyebrow::before { animation: none; } }
+
+  .hero h1 {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 2.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    line-height: 1.22;
+    color: var(--amber);
+    max-width: 18ch;
+  }
+  .hero p.sub {
+    margin-top: 1rem;
+    color: #B9B4A0;
+    font-size: 0.98rem;
+    max-width: 42ch;
+  }
+
+  /* ---------- MODE TABS ---------- */
+  .mode-tabs { display: flex; gap: 0.4rem; margin-top: 2.2rem; }
+  .mode-tab {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.74rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: var(--panel);
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-bottom: none;
+    border-radius: 5px 5px 0 0;
+    padding: 0.6rem 0.9rem;
+    cursor: pointer;
+  }
+  .mode-tab.active { background: var(--panel-2); color: var(--amber); font-weight: 600; }
+
+  /* ---------- FORM PANEL ---------- */
+  .sentence-form {
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 0 8px 8px 8px;
+    padding: 1.4rem 1.3rem;
+  }
+  .sentence-form .line {
+    font-size: 1.05rem;
+    line-height: 2.1;
+    color: var(--ivory);
+  }
+  select {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9rem;
+    background: var(--panel);
+    color: var(--amber);
+    border: 1px solid var(--amber);
+    border-radius: 4px;
+    padding: 0.26rem 0.5rem;
+    font-weight: 600;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--amber) 50%), linear-gradient(135deg, var(--amber) 50%, transparent 50%);
+    background-position: calc(100% - 14px) center, calc(100% - 9px) center;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    padding-right: 26px;
+    cursor: pointer;
+  }
+  select:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--amber-light); outline-offset: 2px; }
+
+  .check-btn {
+    margin-top: 1.3rem;
+    background: var(--amber);
+    color: #1A1200;
+    border: none;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.85rem 1.4rem;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.15s ease;
+  }
+  .check-btn:hover { background: var(--amber-light); }
+
+  .dest-checks { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; }
+  .dest-check { display: flex; align-items: center; gap: 0.4rem; font-size: 0.92rem; color: var(--ivory); cursor: pointer; }
+  .dest-check input { accent-color: var(--amber); width: 15px; height: 15px; }
+  .compare-caveat { margin-top: 0.9rem; font-size: 0.8rem; color: var(--muted); }
+
+  /* ---------- RESULT BOARD ---------- */
+  .result-wrap { max-width: 720px; margin: 0 auto; padding: 0 1.5rem; margin-top: 1.6rem; }
+  .result-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 1.5rem 1.4rem 1.7rem;
+    display: none;
+  }
+  .result-card.show { display: block; animation: rise 0.35s ease; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .result-card.show { animation: none; } }
+
+  .result-top {
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;
+    border-bottom: 1px dashed var(--line);
+    padding-bottom: 1rem; margin-bottom: 1rem;
+  }
+  .result-title { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 1.2rem; color: var(--ivory); text-transform: uppercase; letter-spacing: 0.01em; }
+  .result-sub { font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; }
+
+  /* Flap tiles for the status word — the signature moment */
+  .flap-row {
+    display: flex;
+    gap: 3px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .flap-row::-webkit-scrollbar { display: none; }
+  .flap {
+    background: #1E1E15;
+    border: 1px solid #3A3A28;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    letter-spacing: 0.02em;
+    padding: 0.3rem 0.42rem;
+    border-radius: 2px;
+    min-width: 1.3rem;
+    text-align: center;
+    box-shadow: inset 0 -6px 8px -6px rgba(0,0,0,0.6);
+    color: var(--amber);
+    transform-origin: center top;
+    animation: flapIn 0.4s ease both;
+  }
+  @keyframes flapIn {
+    0% { transform: rotateX(90deg); opacity: 0; }
+    60% { transform: rotateX(-8deg); opacity: 1; }
+    100% { transform: rotateX(0deg); opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { .flap { animation: none; } }
+  .flap.status-required { color: var(--red); }
+  .flap.status-pending { color: var(--amber); }
+  .flap.status-none { color: var(--green); }
+  .flap.status-home { color: var(--muted); }
+
+  .freshness { display: inline-flex; align-items: center; gap: 0.45rem; margin-top: 1rem; margin-bottom: 1.2rem; }
+  .freshness .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .freshness .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase;
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 3px;
+    padding: 0.28rem 0.55rem;
+  }
+  .freshness.fresh .dot { background: var(--green); box-shadow: 0 0 6px 1px rgba(111,207,151,0.6); }
+  .freshness.aging .dot { background: var(--amber); box-shadow: 0 0 6px 1px rgba(244,166,35,0.6); }
+  .freshness.stale .dot { background: var(--red); box-shadow: 0 0 6px 1px rgba(235,87,87,0.6); }
+  .freshness.stale .tag { color: var(--red); border-color: rgba(235,87,87,0.4); }
+
+  .req-grid { display: flex; flex-direction: column; margin-bottom: 1.2rem; }
+  .req-row {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+    padding: 0.6rem 0; border-top: 1px solid var(--line);
+  }
+  .req-row .label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted); flex-shrink: 0;
+  }
+  .req-row .value { font-size: 0.96rem; font-weight: 500; color: var(--ivory); text-align: right; }
+
+  .result-note {
+    font-size: 0.88rem; color: #B9B4A0;
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px;
+    padding: 0.8rem 0.9rem; margin-bottom: 1.1rem;
+  }
+
+  .source-line { font-size: 0.85rem; }
+  .source-line a { font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--amber-light); }
+
+  .unknown-card { display: none; }
+  .unknown-card.show { display: block; }
+
+  /* ---------- COMPARE RESULTS ---------- */
+  .compare-list { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; margin-bottom: 1.2rem; }
+  .compare-row { display: flex; align-items: center; gap: 0.9rem; padding: 0.7rem 0.8rem; border: 1px solid var(--line); border-radius: 6px; background: var(--panel-2); }
+  .compare-rank { font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 1rem; color: var(--muted); width: 1.4rem; flex-shrink: 0; }
+  .compare-body { flex: 1; }
+  .compare-dest { font-weight: 600; font-size: 0.98rem; color: var(--ivory); }
+  .compare-detail { font-size: 0.82rem; color: var(--muted); margin-top: 0.15rem; }
+  .compare-badge {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.66rem; text-transform: uppercase;
+    letter-spacing: 0.03em; font-weight: 700; padding: 0.25rem 0.55rem; border-radius: 4px; white-space: nowrap;
+  }
+  .compare-badge.tier-0 { background: rgba(111,207,151,0.12); color: var(--green); }
+  .compare-badge.tier-1 { background: rgba(111,207,151,0.12); color: var(--green); }
+  .compare-badge.tier-2 { background: rgba(244,166,35,0.14); color: var(--amber); }
+  .compare-badge.tier-3 { background: rgba(235,87,87,0.12); color: var(--red); }
+  .compare-badge.tier-unknown { background: var(--panel); color: var(--muted); }
+
+  /* ---------- BULLETIN (arrivals/departures list) ---------- */
+  .bulletin { max-width: 720px; margin: 3.2rem auto 0; padding: 0 1.5rem; }
+  .bulletin h2 { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 0.01em; font-size: 1.3rem; margin-bottom: 0.3rem; color: var(--amber); }
+  .bulletin .sub { font-size: 0.88rem; color: var(--muted); margin-bottom: 1.4rem; }
+  .bulletin-item { display: flex; gap: 1rem; padding: 1rem 0; border-top: 1px solid var(--line); }
+  .bulletin-item:last-child { border-bottom: 1px solid var(--line); }
+  .bulletin-date {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--board);
+    background: var(--amber); padding: 0.3rem 0.5rem; border-radius: 3px;
+    height: fit-content; white-space: nowrap; font-weight: 700;
+  }
+  .bulletin-text { font-size: 0.92rem; color: #C9C4B6; }
+  .bulletin-text strong { display: block; margin-bottom: 0.15rem; color: var(--ivory); font-family: 'Oswald', sans-serif; font-weight: 600; letter-spacing: 0.005em; }
+
+  .alert-signup { margin-top: 1.6rem; padding-top: 1.3rem; border-top: 1px solid var(--line); display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .alert-signup input[type="email"] {
+    flex: 1 1 220px; min-width: 0; font-family: 'IBM Plex Sans', sans-serif; font-size: 0.92rem;
+    padding: 0.65rem 0.8rem; border: 1px solid var(--line); border-radius: 5px;
+    background: var(--panel); color: var(--ivory);
+  }
+  .alert-signup button {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.03em; background: var(--amber); color: #1A1200; border: none; border-radius: 5px;
+    padding: 0 1.1rem; cursor: pointer; white-space: nowrap;
+  }
+  .alert-signup button:hover { background: var(--amber-light); }
+  .alert-note { font-size: 0.78rem; color: var(--muted); margin-top: 0.5rem; width: 100%; }
+  .alert-note.confirmed { color: var(--green); font-weight: 600; }
+
+  /* ---------- SERVICE CTA ---------- */
+  .service { max-width: 720px; margin: 3rem auto 0; padding: 1.8rem 1.5rem; }
+  .service-box {
+    background: var(--panel-2); border: 1px solid rgba(244,166,35,0.35); border-radius: 10px;
+    padding: 1.8rem 1.6rem; display: flex; flex-direction: column; gap: 1rem;
+    box-shadow: 0 0 30px -8px rgba(244,166,35,0.15);
+  }
+  .service-box h3 { font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 1.15rem; color: var(--amber); }
+  .service-box p { font-size: 0.92rem; color: #C9C4B6; max-width: 46ch; }
+  .service-btn {
+    align-self: flex-start; background: var(--amber); color: #1A1200; border: none;
+    font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 0.82rem;
+    text-transform: uppercase; letter-spacing: 0.03em; padding: 0.7rem 1.2rem; border-radius: 5px; cursor: pointer;
+  }
+  .service-btn:hover { background: var(--amber-light); }
+
+  /* ---------- FOOTER ---------- */
+  footer { max-width: 720px; margin: 2rem auto 0; padding: 1rem 1.5rem 2.2rem; font-size: 0.7rem; line-height: 1.4; color: var(--muted); border-top: 1px solid var(--line); }
+  footer p { margin-bottom: 0.3rem; }
+  footer strong { color: #C9C4B6; }
+
+  @media (max-width: 480px) {
+    .hero h1 { font-size: 1.7rem; }
+    .req-row { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+    .req-row .value { text-align: left; }
+    .flap { font-size: 0.74rem; padding: 0.24rem 0.28rem; min-width: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Straight from official sources</div>
+    <h1>Don't get turned away at the gate. Know before you go.</h1>
+    <p class="sub">We check what's true right now, not what some travel blog said years ago.</p>
+
+    <div class="mode-tabs" role="tablist">
+      <button class="mode-tab active" id="tabSingle" role="tab" aria-selected="true" onclick="switchMode('single')">Check my route</button>
+      <button class="mode-tab" id="tabCompare" role="tab" aria-selected="false" onclick="switchMode('compare')">Torn between two?</button>
+    </div>
+
+    <div class="sentence-form" id="singlePanel">
+      <div class="line">
+        I hold a
+        <label for="passport" class="sr-only">Passport country</label>
+        <select id="passport">
+          <option value="us">United States</option>
+          <option value="uk">United Kingdom</option>
+          <option value="eu">EU / Schengen</option>
+          <option value="ca">Canada</option>
+          <option value="au">Australia</option>
+        </select>
+        passport, traveling to
+        <label for="destination" class="sr-only">Destination</label>
+        <select id="destination">
+          <option value="uk">the United Kingdom</option>
+          <option value="eu">the Schengen Area</option>
+          <option value="th">Thailand</option>
+          <option value="kr">South Korea</option>
+          <option value="jp">Japan</option>
+        </select>.
+      </div>
+      <button class="check-btn" onclick="checkRequirement()">Show me what I need</button>
+    </div>
+
+    <div class="sentence-form" id="comparePanel" style="display:none;">
+      <div class="line">
+        I hold a
+        <label for="comparePassport" class="sr-only">Passport country</label>
+        <select id="comparePassport">
+          <option value="us">United States</option>
+          <option value="uk">United Kingdom</option>
+          <option value="eu">EU / Schengen</option>
+          <option value="ca">Canada</option>
+          <option value="au">Australia</option>
+        </select>
+        passport, and I can't decide between:
+      </div>
+      <div class="dest-checks" id="destChecks">
+        <label class="dest-check"><input type="checkbox" value="uk" checked> United Kingdom</label>
+        <label class="dest-check"><input type="checkbox" value="eu" checked> Schengen Area</label>
+        <label class="dest-check"><input type="checkbox" value="th" checked> Thailand</label>
+        <label class="dest-check"><input type="checkbox" value="kr"> South Korea</label>
+        <label class="dest-check"><input type="checkbox" value="jp"> Japan</label>
+      </div>
+      <button class="check-btn" onclick="compareDestinations()">Tell me which is easier</button>
+      <p class="compare-caveat">We rank the paperwork, cost, and hassle. We can't rank the sunsets. Pick at least two.</p>
+    </div>
+  </div>
+</div>
+
+<div class="result-wrap" aria-live="polite">
+  <div class="result-card" id="resultCard">
+    <div class="result-top">
+      <div>
+        <div class="result-title" id="resultTitle">—</div>
+        <div class="result-sub" id="resultSub">—</div>
+      </div>
+    </div>
+    <div class="flap-row" id="resultStamp"></div>
+    <div class="freshness" id="freshnessRow"></div>
+
+    <div class="req-grid">
+      <div class="req-row"><div class="label">Required document</div><div class="value" id="reqDoc">—</div></div>
+      <div class="req-row"><div class="label">Cost</div><div class="value" id="reqCost">—</div></div>
+      <div class="req-row"><div class="label">Apply before travel</div><div class="value" id="reqTiming">—</div></div>
+      <div class="req-row"><div class="label">Validity</div><div class="value" id="reqValidity">—</div></div>
+    </div>
+
+    <div class="result-note" id="resultNote">—</div>
+
+    <div class="source-line">
+      <a href="#" id="sourceLink" target="_blank" rel="noopener">Official source ↗</a>
+    </div>
+  </div>
+
+  <div class="result-card unknown-card" id="unknownCard">
+    <div class="result-title">We haven't cracked this route yet</div>
+    <p class="result-note" style="margin-top:0.9rem;">Don't guess. Go straight to the destination's official immigration site before you book a thing.</p>
+    <p class="result-note">Or skip the digging. A real person will chase it down for you and reply within 24 hours.</p>
+    <button class="check-btn" style="margin-top:0.3rem;" onclick="document.querySelector('.service').scrollIntoView({behavior:'smooth', block:'center'})">Get a personal check — $9</button>
+  </div>
+
+  <div class="result-card" id="compareCard">
+    <div class="result-title">Here's your friction ranking</div>
+    <div class="result-sub" id="compareSub" style="margin-bottom:1.2rem;">—</div>
+    <ol class="compare-list" id="compareList"></ol>
+    <div class="result-note">This is paperwork and cost, nothing else. Use it to break a tie, not to plan your dream trip.</div>
+  </div>
+</div>
+
+<div class="bulletin">
+  <h2>What just changed</h2>
+  <p class="sub">Straight from the source, every time.</p>
+
+  <div class="bulletin-item">
+    <div class="bulletin-date">25 FEB 2026</div>
+    <div class="bulletin-text">
+      <strong>UK's ETA is now non-negotiable</strong>
+      No ETA, no boarding. Full stop. Almost every visa-exempt visitor needs one before they even reach the airport.
+    </div>
+  </div>
+
+  <div class="bulletin-item">
+    <div class="bulletin-date">UPDATED 8 JUL</div>
+    <div class="bulletin-text">
+      <strong>EU's ETIAS: delayed, again.</strong>
+      Q4 2026 was the plan. EU officials now call that "no longer feasible" thanks to IT problems. New date: unknown. We're watching.
+    </div>
+  </div>
+
+  <div class="bulletin-item">
+    <div class="bulletin-date">PENDING</div>
+    <div class="bulletin-text">
+      <strong>Thailand's about to cut your trip short</strong>
+      60 days is dropping to 30. It's approved, just not official yet. Don't plan around the extra month.
+    </div>
+  </div>
+
+  <div class="bulletin-item">
+    <div class="bulletin-date">ONGOING</div>
+    <div class="bulletin-text">
+      <strong>Scam arrival-card sites are everywhere</strong>
+      The real forms are free. If a site's charging you for one, close the tab.
+    </div>
+  </div>
+
+  <div class="alert-signup">
+    <label for="alertEmail" class="sr-only">Email address</label>
+    <input type="email" id="alertEmail" placeholder="you@example.com" autocomplete="email">
+    <button onclick="signUpForAlerts()">Notify me of changes</button>
+    <p class="alert-note" id="alertNote">We'll email you the moment your route changes. Nothing else. Ever.</p>
+  </div>
+</div>
+
+<div class="service">
+  <div class="service-box">
+    <h3>Still not sure? We'll dig it up for you.</h3>
+    <p>Give us your passport, destination, and dates. A real human checks it against official sources and hits you back within 24 hours. No jargon. Just answers.</p>
+    <button class="service-btn">Get a personal check — $9</button>
+  </div>
+</div>
+
+<footer>
+  <p><strong>This isn't legal or immigration advice.</strong> Rules move fast, and your exact situation can hinge on nationality, purpose of travel, or visa history. Always confirm on the destination's official site before you book.</p>
+  <p>Independent, and staying that way. Funded by travelers, not advertisers.</p>
+</footer>
+
+<script>
+  // status codes drive the flap tiles — never inferred from free-text doc strings:
+  //   required  = an authorization/document is actively needed
+  //   pending   = a scheme is announced but not yet enforced
+  //   none      = no visa/authorization needed, and it isn't the traveler's home country
+  //   home      = destination is the traveler's own country
+  const routes = {
+    "us-uk":  { title: "UK entry: Electronic Travel Authorisation (ETA)", sub: "US passport → United Kingdom", status: "required", doc: "ETA (linked digitally to your passport)", cost: "£20 (~$26)", timing: "Apply at least 3 working days ahead", validity: "2 years, multiple short stays", note: "Airlines won't board you without an approved ETA. Apply only through gov.uk or the official UK ETA app; third-party sites charge more for the exact same thing.", source: "https://www.gov.uk/eta", verified: "2026-04-15" },
+    "uk-uk":  { title: "No ETA needed — this is your home passport", sub: "UK passport → United Kingdom", status: "home", doc: "None — you're a UK/Irish citizen", cost: "—", timing: "—", validity: "—", note: "The ETA requirement applies to visa-exempt foreign visitors, not UK or Irish passport holders.", source: "https://www.gov.uk/eta", verified: "2026-04-15" },
+    "eu-uk":  { title: "UK entry: Electronic Travel Authorisation (ETA)", sub: "EU/Schengen passport → United Kingdom", status: "required", doc: "ETA (linked digitally to your passport)", cost: "£20 (~$26)", timing: "Apply at least 3 working days ahead", validity: "2 years, multiple short stays", note: "Required for nearly all visa-exempt nationalities, including EU citizens, since early 2025.", source: "https://www.gov.uk/eta", verified: "2026-04-15" },
+    "ca-uk":  { title: "UK entry: Electronic Travel Authorisation (ETA)", sub: "Canadian passport → United Kingdom", status: "required", doc: "ETA (linked digitally to your passport)", cost: "£20 (~$26)", timing: "Apply at least 3 working days ahead", validity: "2 years, multiple short stays", note: "No ETA, no boarding. Airlines check for it before you even reach the gate.", source: "https://www.gov.uk/eta", verified: "2026-04-15" },
+    "au-uk":  { title: "UK entry: Electronic Travel Authorisation (ETA)", sub: "Australian passport → United Kingdom", status: "required", doc: "ETA (linked digitally to your passport)", cost: "£20 (~$26)", timing: "Apply at least 3 working days ahead", validity: "2 years, multiple short stays", note: "This gets checked at check-in, not at UK border control. If it's missing, you don't fly.", source: "https://www.gov.uk/eta", verified: "2026-04-15" },
+
+    "us-eu":  { title: "Schengen entry: no ETIAS required yet", sub: "US passport → Schengen Area", status: "pending", doc: "None currently — ETIAS not yet active", cost: "€20 once ETIAS launches", timing: "Not applicable yet", validity: "3 years once active", note: "ETIAS was targeted for Q4 2026, but in early July 2026 EU officials said that date looks 'no longer feasible' due to IT issues. No new date yet; a review meeting is expected in September. Until it's live, visa-exempt travelers enter as before, and the 90-days-in-180 Schengen limit still applies.", source: "https://travel-europe.europa.eu/etias_en", verified: "2026-07-08" },
+    "uk-eu":  { title: "Schengen entry: no ETIAS required yet", sub: "UK passport → Schengen Area", status: "pending", doc: "None currently — ETIAS not yet active", cost: "€20 once ETIAS launches", timing: "Not applicable yet", validity: "3 years once active", note: "ETIAS was targeted for Q4 2026, but in early July 2026 EU officials said that date looks 'no longer feasible' due to IT issues. No new date yet, with a review expected in September. UK travelers remain subject to the 90-days-in-180 Schengen limit regardless, separate from the UK ETA needed for the return leg.", source: "https://travel-europe.europa.eu/etias_en", verified: "2026-07-08" },
+    "ca-eu":  { title: "Schengen entry: no ETIAS required yet", sub: "Canadian passport → Schengen Area", status: "pending", doc: "None currently — ETIAS not yet active", cost: "€20 once ETIAS launches", timing: "Not applicable yet", validity: "3 years once active", note: "ETIAS was targeted for Q4 2026, but in early July 2026 EU officials said that date looks 'no longer feasible' due to IT issues. No new date has been set; expect an update after a September review meeting.", source: "https://travel-europe.europa.eu/etias_en", verified: "2026-07-08" },
+    "au-eu":  { title: "Schengen entry: no ETIAS required yet", sub: "Australian passport → Schengen Area", status: "pending", doc: "None currently — ETIAS not yet active", cost: "€20 once ETIAS launches", timing: "Not applicable yet", validity: "3 years once active", note: "ETIAS was targeted for Q4 2026, but in early July 2026 EU officials said that date looks 'no longer feasible' due to IT issues. No new date has been set; expect an update after a September review meeting.", source: "https://travel-europe.europa.eu/etias_en", verified: "2026-07-08" },
+
+    "us-th":  { title: "Thailand entry: Digital Arrival Card", sub: "US passport → Thailand", status: "required", doc: "Thailand Digital Arrival Card (TDAC)", cost: "Free", timing: "Submit within 72 hours before arrival", validity: "Single entry", note: "Thailand's visa-exempt stay length is set to revert from 60 to 30 days once new rules are formally published — the effective date isn't confirmed yet.", source: "https://tdac.immigration.go.th", verified: "2026-07-02" },
+    "uk-th":  { title: "Thailand entry: Digital Arrival Card", sub: "UK passport → Thailand", status: "required", doc: "Thailand Digital Arrival Card (TDAC)", cost: "Free", timing: "Submit within 72 hours before arrival", validity: "Single entry", note: "Same TDAC form as everyone else. Keep an eye on the stay-length change below.", source: "https://tdac.immigration.go.th", verified: "2026-07-02" },
+    "eu-th":  { title: "Thailand entry: Digital Arrival Card", sub: "EU/Schengen passport → Thailand", status: "required", doc: "Thailand Digital Arrival Card (TDAC)", cost: "Free", timing: "Submit within 72 hours before arrival", validity: "Single entry", note: "Same digital arrival card as other visitors. The stay-length cut hasn't taken effect yet, but it's coming.", source: "https://tdac.immigration.go.th", verified: "2026-07-02" },
+    "ca-th":  { title: "Thailand entry: Digital Arrival Card", sub: "Canadian passport → Thailand", status: "required", doc: "Thailand Digital Arrival Card (TDAC)", cost: "Free", timing: "Submit within 72 hours before arrival", validity: "Single entry", note: "Standard TDAC requirement. Worth checking back closer to your trip in case the 30-day rule has landed by then.", source: "https://tdac.immigration.go.th", verified: "2026-07-02" },
+    "au-th":  { title: "Thailand entry: Digital Arrival Card", sub: "Australian passport → Thailand", status: "required", doc: "Thailand Digital Arrival Card (TDAC)", cost: "Free", timing: "Submit within 72 hours before arrival", validity: "Single entry", note: "Same TDAC form required. The shorter visa-exempt stay hasn't kicked in as of this check, but it's expected soon.", source: "https://tdac.immigration.go.th", verified: "2026-07-02" },
+
+    "us-kr":  { title: "South Korea entry: K-ETA exemption in effect", sub: "US passport → South Korea", status: "none", doc: "None for short stays — temporary K-ETA exemption applies", cost: "Free (exemption in effect)", timing: "Not applicable while exempt", validity: "Exemption runs through 31 Dec 2026", note: "You may still need the e-Arrival Card if you don't hold K-ETA. Beware of unofficial sites charging for this — it's free on the government site.", source: "https://www.k-eta.go.kr", verified: "2026-07-01" },
+    "uk-kr":  { title: "South Korea entry: K-ETA exemption in effect", sub: "UK passport → South Korea", status: "none", doc: "None for short stays — temporary K-ETA exemption applies", cost: "Free (exemption in effect)", timing: "Not applicable while exempt", validity: "Exemption runs through 31 Dec 2026", note: "You may still need the e-Arrival Card separately if you don't hold K-ETA. Some third-party sites charge for this even though it's free.", source: "https://www.k-eta.go.kr", verified: "2026-07-01" },
+    "eu-kr":  { title: "South Korea entry: K-ETA exemption in effect", sub: "EU/Schengen passport → South Korea", status: "none", doc: "None for short stays — temporary K-ETA exemption applies", cost: "Free (exemption in effect)", timing: "Not applicable while exempt", validity: "Exemption runs through 31 Dec 2026", note: "Exemption coverage varies slightly by nationality within the EU — confirm yours on the official K-ETA site.", source: "https://www.k-eta.go.kr", verified: "2026-07-01" },
+    "ca-kr":  { title: "South Korea entry: K-ETA exemption in effect", sub: "Canadian passport → South Korea", status: "none", doc: "None for short stays — temporary K-ETA exemption applies", cost: "Free (exemption in effect)", timing: "Not applicable while exempt", validity: "Exemption runs through 31 Dec 2026", note: "If you don't have K-ETA, the e-Arrival Card may still apply. It's free on the government site, so skip anything charging for it.", source: "https://www.k-eta.go.kr", verified: "2026-07-01" },
+    "au-kr":  { title: "South Korea entry: K-ETA exemption in effect", sub: "Australian passport → South Korea", status: "none", doc: "None for short stays — temporary K-ETA exemption applies", cost: "Free (exemption in effect)", timing: "Not applicable while exempt", validity: "Exemption runs through 31 Dec 2026", note: "Watch for lookalike sites charging for the e-Arrival Card. The real one, on the government domain, costs nothing.", source: "https://www.k-eta.go.kr", verified: "2026-07-01" },
+
+    "us-jp":  { title: "Japan entry: no advance authorization needed", sub: "US passport → Japan", status: "none", doc: "None — visa-exempt tourist entry", cost: "Free", timing: "Not applicable", validity: "Up to 90 days per stay", note: "Japan has floated a US-ESTA-style pre-registration system (JESTA) but it wasn't in force as of mid-2026. Re-check closer to travel.", source: "https://www.mofa.go.jp/j_info/visit/visa/", verified: "2026-05-10" },
+    "uk-jp":  { title: "Japan entry: no advance authorization needed", sub: "UK passport → Japan", status: "none", doc: "None — visa-exempt tourist entry", cost: "Free", timing: "Not applicable", validity: "Up to 90 days per stay", note: "Nothing to apply for ahead of time for a short tourist visit, as of this check.", source: "https://www.mofa.go.jp/j_info/visit/visa/", verified: "2026-05-10" },
+    "eu-jp":  { title: "Japan entry: no advance authorization needed", sub: "EU/Schengen passport → Japan", status: "none", doc: "None — visa-exempt tourist entry", cost: "Free", timing: "Not applicable", validity: "Up to 90 days per stay", note: "Exact visa-free allowance varies slightly by EU nationality — most get 90 days.", source: "https://www.mofa.go.jp/j_info/visit/visa/", verified: "2026-05-10" },
+    "ca-jp":  { title: "Japan entry: no advance authorization needed", sub: "Canadian passport → Japan", status: "none", doc: "None — visa-exempt tourist entry", cost: "Free", timing: "Not applicable", validity: "Up to 90 days per stay", note: "No pre-travel authorization required right now for a standard tourist stay.", source: "https://www.mofa.go.jp/j_info/visit/visa/", verified: "2026-05-10" },
+    "au-jp":  { title: "Japan entry: no advance authorization needed", sub: "Australian passport → Japan", status: "none", doc: "None — visa-exempt tourist entry", cost: "Free", timing: "Not applicable", validity: "Up to 90 days per stay", note: "Currently no advance paperwork needed for short tourist trips.", source: "https://www.mofa.go.jp/j_info/visit/visa/", verified: "2026-05-10" },
+  };
+
+  const STAMP_LABELS = {
+    required: "VERIFIED",
+    pending: "NOT YET REQUIRED",
+    none: "NO ACTION NEEDED",
+    home: "HOME PASSPORT",
+  };
+
+  const DEST_NAMES = { uk: "United Kingdom", eu: "Schengen Area", th: "Thailand", kr: "South Korea", jp: "Japan" };
+  const FRICTION_TIER = { home: 0, none: 1, pending: 2, required: 3 };
+  const TIER_BADGE = {
+    home: "Home passport",
+    none: "No action needed",
+    pending: "Not required yet",
+    required: "Action required",
+  };
+
+  const TODAY = new Date("2026-07-08"); // update this alongside real data refreshes
+
+  // renders a short status word as individual departures-board flap tiles
+  function renderFlaps(text, statusClass) {
+    return text.split('').map((ch, i) => {
+      const safeChar = ch === ' ' ? '&nbsp;' : ch;
+      return `<div class="flap ${statusClass}" style="animation-delay:${i * 35}ms">${safeChar}</div>`;
+    }).join('');
+  }
+
+  function describeFreshness(verifiedISO) {
+    const verifiedDate = new Date(verifiedISO);
+    const days = Math.round((TODAY - verifiedDate) / 86400000);
+    const dateLabel = verifiedDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    if (days <= 30) return { text: `Last verified ${dateLabel} · fresh`, cls: 'fresh' };
+    if (days <= 90) return { text: `Last verified ${dateLabel} · worth a recheck`, cls: 'aging' };
+    return { text: `Last verified ${dateLabel} · recheck recommended`, cls: 'stale' };
+  }
+
+  function switchMode(mode) {
+    const single = mode === 'single';
+    document.getElementById('singlePanel').style.display = single ? '' : 'none';
+    document.getElementById('comparePanel').style.display = single ? 'none' : '';
+    document.getElementById('tabSingle').classList.toggle('active', single);
+    document.getElementById('tabCompare').classList.toggle('active', !single);
+    document.getElementById('tabSingle').setAttribute('aria-selected', single);
+    document.getElementById('tabCompare').setAttribute('aria-selected', !single);
+
+    // one result region visible at a time, so a stale result doesn't linger under the wrong tab
+    document.getElementById('resultCard').classList.remove('show');
+    document.getElementById('unknownCard').classList.remove('show');
+    document.getElementById('compareCard').classList.remove('show');
+  }
+
+  function checkRequirement() {
+    const passport = document.getElementById('passport').value;
+    const destination = document.getElementById('destination').value;
+    const key = passport + "-" + destination;
+    const data = routes[key];
+
+    const card = document.getElementById('resultCard');
+    const unknown = document.getElementById('unknownCard');
+
+    if (!data) {
+      card.classList.remove('show');
+      unknown.classList.add('show');
+      unknown.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    unknown.classList.remove('show');
+    document.getElementById('resultTitle').textContent = data.title;
+    document.getElementById('resultSub').textContent = data.sub;
+    document.getElementById('reqDoc').textContent = data.doc;
+    document.getElementById('reqCost').textContent = data.cost;
+    document.getElementById('reqTiming').textContent = data.timing;
+    document.getElementById('reqValidity').textContent = data.validity;
+    document.getElementById('resultNote').textContent = data.note;
+    document.getElementById('sourceLink').href = data.source;
+
+    const statusClass = 'status-' + data.status;
+    document.getElementById('resultStamp').innerHTML = renderFlaps(STAMP_LABELS[data.status] || "CHECKED", statusClass);
+
+    const fresh = describeFreshness(data.verified);
+    const freshRow = document.getElementById('freshnessRow');
+    freshRow.className = 'freshness ' + fresh.cls;
+    freshRow.innerHTML = '<span class="dot"></span><span class="tag mono">' + fresh.text + '</span>';
+
+    card.classList.add('show');
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function compareDestinations() {
+    const passport = document.getElementById('comparePassport').value;
+    const checked = Array.from(document.querySelectorAll('#destChecks input:checked')).map(el => el.value);
+    const compareCard = document.getElementById('compareCard');
+    const list = document.getElementById('compareList');
+    const sub = document.getElementById('compareSub');
+
+    if (checked.length < 2) {
+      sub.textContent = "Pick at least two destinations to compare.";
+      list.innerHTML = '';
+      compareCard.classList.add('show');
+      compareCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    const passportLabel = document.querySelector('#comparePassport option:checked').textContent;
+    sub.textContent = `${passportLabel} passport, ranked from least to most friction`;
+
+    const rows = checked.map(dest => {
+      const data = routes[passport + "-" + dest];
+      if (!data) {
+        return { dest, tier: 99, badgeClass: 'tier-unknown', badgeText: 'Not yet verified', detail: 'Confirm with the official source before deciding on this one.' };
+      }
+      return {
+        dest,
+        tier: FRICTION_TIER[data.status],
+        badgeClass: 'tier-' + FRICTION_TIER[data.status],
+        badgeText: TIER_BADGE[data.status],
+        detail: `${data.doc} · ${data.cost}`,
+      };
+    });
+
+    rows.sort((a, b) => a.tier - b.tier);
+
+    list.innerHTML = rows.map((r, i) => `
+      <li class="compare-row">
+        <span class="compare-rank">${i + 1}</span>
+        <span class="compare-body">
+          <span class="compare-dest">${DEST_NAMES[r.dest]}</span>
+          <span class="compare-detail">${r.detail}</span>
+        </span>
+        <span class="compare-badge ${r.badgeClass}">${r.badgeText}</span>
+      </li>
+    `).join('');
+
+    document.getElementById('resultCard').classList.remove('show');
+    document.getElementById('unknownCard').classList.remove('show');
+    compareCard.classList.add('show');
+    compareCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function signUpForAlerts() {
+    const input = document.getElementById('alertEmail');
+    const note = document.getElementById('alertNote');
+    const email = input.value.trim();
+    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    if (!validEmail) {
+      note.textContent = "Enter a valid email address to get route-change alerts.";
+      note.className = 'alert-note';
+      return;
+    }
+
+    // Demo only: no backend wired up. In production this should post to
+    // a real subscription endpoint (with the currently-selected route attached
+    // so the alert can be scoped, e.g. "US passport → UK" instead of everything).
+    note.textContent = `You're on the list, ${email}. We'll only email when a rule actually changes.`;
+    note.className = 'alert-note confirmed';
+    input.value = '';
+  }
+</script>
+
+</body>
+</html>
